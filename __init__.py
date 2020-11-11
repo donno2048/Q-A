@@ -641,8 +641,15 @@ def my_hook(t):
     return update_to
 def setup():
     mkdir('.\\tempo')
+    if not isdir('.\\data') and 'n' in input('I\'m going to install Wikipedia, this may take a long time (this is 17 Gb) would you like to do in in another time? (y/n)\n').lower():
+        with tqdm('https://dl.fbaipublicfiles.com/drqa/data.tar.gz', desc = 'Installing Wikipedia') as t:
+            reporthook = my_hook(t)
+            urlretrieve('https://dl.fbaipublicfiles.com/drqa/data.tar.gz', '.\\tempo\\data.tar.gz', reporthook=reporthook)
+        with topen('.\\tempo\\data.tar.gz', 'r:gz') as tar:
+            for member in tqdm(iterable=tar.getmembers(), total=len(tar.getmembers()), desc = 'Extracting wikipedia'): tar.extract(member=member, path = '.')
+    rmtree('.\\tempo')
+    if not isdir('.\\data'): exit(print('You chose not to install wikipedia, you can re-run it any time and install wikipedia'))
     if not isdir('.\\data\\datasets'):
-        mkdir('.\\data')
         mkdir('.\\data\\datasets')
         url_names = {'https://rajpurkar.github.io/SQuAD-explorer/dataset/train-v1.1.json' : '.\\data\\datasets\\SQuAD-v1.1-train.json', 'https://rajpurkar.github.io/SQuAD-explorer/dataset/dev-v1.1.json' : '.\\data\\datasets\\SQuAD-v1.1-dev.json', 'http://nlp.stanford.edu/static/software/sempre/release-emnlp2013/lib/data/webquestions/dataset_11/webquestions.examples.train.json.bz2' : '.\\tempo\\WebQuestions-train.json.bz2', 'http://nlp.stanford.edu/static/software/sempre/release-emnlp2013/lib/data/webquestions/dataset_11/webquestions.examples.test.json.bz2' : '.\\tempo\\WebQuestions-train.json.bz2', 'https://dl.fbaipublicfiles.com/drqa/freebase-entities.txt.gz' : '.\\tempo\\freebase-entities.txt.gz', 'https://github.com/donno2048/corenlp/archive/master.zip' : '.\\tempo\\corenlp.zip'}
         index = 0
@@ -671,14 +678,6 @@ def setup():
         dataset = load(open('.\\tempo\\WebQuestions-test.json'))
         for ex in dataset: open('.\\data\\datasets\\WebQuestions-test.txt', 'w').write(dumps({'question': ex['utterance'], 'answer': [a.replace('"', '') for a in findall(r'(?<=\(description )(.+?)(?=\) \(description|\)\)$)', ex['targetValue'])]}) + '\n')
         print('DONE\n')
-    if not isdir('.\\data\\wikipedia') and 'n' in input('I\'m going to install Wikipedia, this may take a long time (this is 17 Gb) would you like to do in in another time? (y/n)\n').lower():
-        with tqdm('https://dl.fbaipublicfiles.com/drqa/data.tar.gz', desc = 'Installing Wikipedia') as t:
-            reporthook = my_hook(t)
-            urlretrieve('https://dl.fbaipublicfiles.com/drqa/data.tar.gz', '.\\tempo\\data.tar.gz', reporthook=reporthook)
-        with topen('.\\tempo\\data.tar.gz', 'r:gz') as tar:
-            for member in tqdm(iterable=tar.getmembers(), total=len(tar.getmembers()), desc = 'Extracting wikipedia'): tar.extract(member=member, path = '.\\data')
-    rmtree('.\\tempo')
-    if not isdir('.\\data\\wikipedia'): exit(print('You chose not to install wikipedia, you can re-run it any time and install wikipedia'))
     if not isfile('data.in'): open('data.in', 'a').writelines([input('Give me a candidate file, if you don\'t have any press enter\n'), input('Give me a retriever_model, if you don\'t have any press enter\n'), input('Give me a doc db, if you don\'t have any press enter\n')])
 def question(question):
     try: print(QA(set(normalize('NFD', line.strip()).lower() for line in open(open('data.in', 'r').readlines()[0].replace('\n', ''))) if open('data.in', 'r').readlines()[0].replace('\n', '') else None, {'options': {'tfidf_path': open('data.in', 'r').readlines()[1].replace('\n', '')}}, {'options': {'db_path': open('data.in', 'r').readlines()[2].replace('\n', '')}}).answer(question))
