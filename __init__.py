@@ -10,7 +10,7 @@ from    numpy                       import    argmax, argpartition, argsort, arr
 from    numpy.random                import    random, shuffle
 from    os                          import    mkdir, remove, rename
 from    os.path                     import    isdir, isfile
-from    pexpect                     import    spawn
+from    wexpect                     import    spawn
 from    prettytable                 import    PrettyTable
 from    re                          import    findall
 from    regex                       import    compile, match, split
@@ -23,7 +23,7 @@ from    tarfile                     import    open as topen
 from    termcolor                   import    colored
 from    time                        import    time
 from    torch                       import    ByteTensor, cat, ger, is_tensor, load as tlod, LongTensor, ones, save, sort, Tensor, zeros
-from    torch.nn                    import    Embedding, DataParallel, Linear, LSTM, Module, ModuleList
+from    torch.nn                    import    DataParallel, Embedding, GRU, Linear, LSTM, Module, ModuleList, RNN
 from    torch.nn.functional         import    dropout, log_softmax, nll_loss, relu, softmax
 from    torch.nn.utils              import    clip_grad_norm
 from    torch.nn.utils.rnn          import    pack_padded_sequence, PackedSequence, pad_packed_sequence
@@ -35,7 +35,7 @@ from    unicodedata                 import    normalize
 from    urllib.request              import    urlretrieve
 from    zipfile                     import    ZipFile
 PROCESS_TOK, PROCESS_DB, PROCESS_CANDS, Wordlist = None, None, None, ['i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself', 'it', 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', 'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', 'should', 'now', 'd', 'll', 'm', 'o', 're', 've', 'y', 'ain', 'aren', 'couldn', 'didn', 'doesn', 'hadn', 'hasn', 'haven', 'isn', 'ma', 'mightn', 'mustn', 'needn', 'shan', 'shouldn', 'wasn', 'weren', 'won', 'wouldn', "'ll", "'re", "'ve", "n't", "'s", "'d", "'m", "''", "``"]
-class StackedBRNN(nn.Module):
+class StackedBRNN(Module):
     def __init__(self, input_size, hidden_size, num_layers, dropout_rate=0, dropout_output=False, rnn_type=LSTM, concat_layers=False, padding=False):
         super(StackedBRNN, self).__init__()
         self.padding, self.dropout_output, self.dropout_rate, self.num_layers, self.concat_layers, self.rnns = padding, dropout_output, dropout_rate, num_layers, concat_layers, ModuleList()
@@ -108,7 +108,7 @@ class LinearSeqAttn(Module):
         scores.data.masked_fill_(x_mask.data, -float('inf'))
         return softmax(scores, dim=-1)
 class RnnDocReader(Module):
-    RNN_TYPES = {'lstm': nn.LSTM, 'gru': nn.GRU, 'rnn': nn.RNN}
+    RNN_TYPES = {'lstm': LSTM, 'gru': GRU, 'rnn': RNN}
     def __init__(self, args, normalize=True):
         super(RnnDocReader, self).__init__()
         self.args = args
