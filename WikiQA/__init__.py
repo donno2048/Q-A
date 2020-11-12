@@ -680,7 +680,7 @@ def setup():
         for ex in dataset: open('.\\data\\datasets\\WebQuestions-test.txt', 'w').write(dumps({'question': ex['utterance'], 'answer': [a.replace('"', '') for a in findall(r'(?<=\(description )(.+?)(?=\) \(description|\)\)$)', ex['targetValue'])]}) + '\n')
         rmtree('.\\tempo')
         print('DONE\n')
-    if not isfile('data.in'): open('data.in', 'a').write(input('Give me a candidate file, if you don\'t have any press enter\n'))
+    if not isfile('data.in'): open('data.in', 'w').write(input('Give me a candidate file, if you don\'t have any press enter\n'))
 def question(question):
     try: print(QA(set(normalize('NFD', line.strip()).lower() for line in open(open('data.in').read().replace('\n', ''))) if open('data.in', 'r').read().replace('\n', '') else None, {'options': {'tfidf_path': '.\\data\\wikipedia\\docs-tfidf-ngram=2-hash=16777216-tokenizer=simple.npz'}}, {'options': {'db_path': '.\\data\\wikipedia\\docs.db'}}).answer(question))
     except: print('The process failed, have you ran the setup function yet?')
