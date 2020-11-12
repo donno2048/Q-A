@@ -8,4 +8,5 @@ group.add_argument('-q', '--Question', metavar='', type=str, help='Ask a single 
 args = parser.parse_args()
 if args.Setup: setup()
 if args.Interactive: interactive()
-if args.Question: question(args.Question)
+elif args.Question: question(args.Question)
+else: print('You didn\'t give me any input, to ask a single question type \"-q Question\" not \"-q\"')
