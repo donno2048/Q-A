@@ -1,4 +1,4 @@
-from    __init__   import   interactive, question, setup # tried . did'nt work
+from        .      import   interactive, question, setup # tried . did'nt work
 from    argparse   import   ArgumentParser
 parser = ArgumentParser(description = 'Choose what you want to do')
 parser.add_argument('-s', '--Setup', action='store_true', help='Setup the requirements for the code')
