@@ -640,17 +640,16 @@ def my_hook(t):
         last_b[0] = b
     return update_to
 def setup():
-    mkdir('.\\tempo')
+    try: mkdir('.\\tempo')
+    except: pass
     if not isdir('.\\data') and 'n' in input('I\'m going to install Wikipedia, this may take a long time (this is 17 Gb) would you like to do in in another time? (y/n)\n').lower():
         with tqdm('https://dl.fbaipublicfiles.com/drqa/data.tar.gz', desc = 'Installing Wikipedia') as t:
             reporthook = my_hook(t)
             urlretrieve('https://dl.fbaipublicfiles.com/drqa/data.tar.gz', '.\\tempo\\data.tar.gz', reporthook=reporthook)
         with topen('.\\tempo\\data.tar.gz', 'r:gz') as tar:
             for member in tqdm(iterable=tar.getmembers(), total=len(tar.getmembers()), desc = 'Extracting wikipedia'): tar.extract(member=member, path = '.')
-    rmtree('.\\tempo')
     if not isdir('.\\data'): exit(print('You chose not to install wikipedia, you can re-run it any time and install wikipedia'))
-    if not isdir('.\\data\\datasets'):
-        mkdir('.\\data\\datasets')
+    if not isfile('.\\data\\datasets\\WebQuestions-test.txt'):
         url_names = {'https://rajpurkar.github.io/SQuAD-explorer/dataset/train-v1.1.json' : '.\\data\\datasets\\SQuAD-v1.1-train.json', 'https://rajpurkar.github.io/SQuAD-explorer/dataset/dev-v1.1.json' : '.\\data\\datasets\\SQuAD-v1.1-dev.json', 'http://nlp.stanford.edu/static/software/sempre/release-emnlp2013/lib/data/webquestions/dataset_11/webquestions.examples.train.json.bz2' : '.\\tempo\\WebQuestions-train.json.bz2', 'http://nlp.stanford.edu/static/software/sempre/release-emnlp2013/lib/data/webquestions/dataset_11/webquestions.examples.test.json.bz2' : '.\\tempo\\WebQuestions-train.json.bz2', 'https://dl.fbaipublicfiles.com/drqa/freebase-entities.txt.gz' : '.\\tempo\\freebase-entities.txt.gz', 'https://github.com/donno2048/corenlp/archive/master.zip' : '.\\tempo\\corenlp.zip'}
         index = 0
         for i in url_names:
@@ -665,7 +664,7 @@ def setup():
         open('.\\data\\datasets\\freebase-entities.txt', 'wb').write(gopen('.\\tempo\\freebase-entities.txt.gz', 'rb').read())
         open('.\\tempo\\WebQuestions-train.json', 'wb').write(BZ2File('.\\tempo\\WebQuestions-train.json.bz2').read())
         open('.\\tempo\\WebQuestions-test.json', 'wb').write(BZ2File('.\\tempo\\WebQuestions-test.json.bz2').read())
-        dataset = load(open('.\\data\\datasets\\SQuAD-v1.1-test.json'))
+        dataset = load(open('.\\data\\datasets\\SQuAD-v1.1-train.json'))
         for article in dataset['data']:
             for paragraph in article['paragraphs']:
                 for qa in paragraph['qas']: open('.\\data\\datasets\\SQuAD-v1.1-train.txt', 'w').write(dumps({'question': qa['question'], 'answer': [a['text'] for a in qa['answers']]}) + '\n')
@@ -677,6 +676,7 @@ def setup():
         for ex in dataset: open('.\\data\\datasets\\WebQuestions-train.txt', 'w').write(dumps({'question': ex['utterance'], 'answer': [a.replace('"', '') for a in findall(r'(?<=\(description )(.+?)(?=\) \(description|\)\)$)', ex['targetValue'])]}) + '\n')
         dataset = load(open('.\\tempo\\WebQuestions-test.json'))
         for ex in dataset: open('.\\data\\datasets\\WebQuestions-test.txt', 'w').write(dumps({'question': ex['utterance'], 'answer': [a.replace('"', '') for a in findall(r'(?<=\(description )(.+?)(?=\) \(description|\)\)$)', ex['targetValue'])]}) + '\n')
+        rmtree('.\\tempo')
         print('DONE\n')
     if not isfile('data.in'): open('data.in', 'a').writelines([input('Give me a candidate file, if you don\'t have any press enter\n'), input('Give me a retriever_model, if you don\'t have any press enter\n'), input('Give me a doc db, if you don\'t have any press enter\n')])
 def question(question):
