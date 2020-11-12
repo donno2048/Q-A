@@ -3,7 +3,7 @@ from    bz2                         import    BZ2File
 from    collections                 import    Counter
 from    copy                        import    copy, deepcopy
 from    gzip                        import    open as gopen
-from    json                        import    dumps, load, loads
+from    json                        import    dumps, load as jlod, loads
 from    multiprocessing             import    Pool
 from    multiprocessing.util        import    Finalize
 from    numpy                       import    argmax, argpartition, argsort, array, float_, int_, load as nlod, log, log1p, multiply, unique, unravel_index
@@ -650,37 +650,39 @@ def setup():
             for member in tqdm(iterable=tar.getmembers(), total=len(tar.getmembers()), desc = 'Extracting wikipedia'): tar.extract(member=member, path = '.')
     if not isdir('.\\data'): exit(print('You chose not to install wikipedia, you can re-run it any time and install wikipedia'))
     if not isfile('.\\data\\datasets\\WebQuestions-test.txt'):
-        url_names = {'https://rajpurkar.github.io/SQuAD-explorer/dataset/train-v1.1.json' : '.\\data\\datasets\\SQuAD-v1.1-train.json', 'https://rajpurkar.github.io/SQuAD-explorer/dataset/dev-v1.1.json' : '.\\data\\datasets\\SQuAD-v1.1-dev.json', 'http://nlp.stanford.edu/static/software/sempre/release-emnlp2013/lib/data/webquestions/dataset_11/webquestions.examples.train.json.bz2' : '.\\tempo\\WebQuestions-train.json.bz2', 'http://nlp.stanford.edu/static/software/sempre/release-emnlp2013/lib/data/webquestions/dataset_11/webquestions.examples.test.json.bz2' : '.\\tempo\\WebQuestions-train.json.bz2', 'https://dl.fbaipublicfiles.com/drqa/freebase-entities.txt.gz' : '.\\tempo\\freebase-entities.txt.gz', 'https://github.com/donno2048/corenlp/archive/master.zip' : '.\\tempo\\corenlp.zip'}
+        url_names = {'https://rajpurkar.github.io/SQuAD-explorer/dataset/train-v1.1.json' : '.\\data\\datasets\\SQuAD-v1.1-train.json', 'https://rajpurkar.github.io/SQuAD-explorer/dataset/dev-v1.1.json' : '.\\data\\datasets\\SQuAD-v1.1-dev.json', 'http://nlp.stanford.edu/static/software/sempre/release-emnlp2013/lib/data/webquestions/dataset_11/webquestions.examples.train.json.bz2' : '.\\tempo\\WebQuestions-train.json.bz2', 'http://nlp.stanford.edu/static/software/sempre/release-emnlp2013/lib/data/webquestions/dataset_11/webquestions.examples.test.json.bz2' : '.\\tempo\\WebQuestions-test.json.bz2', 'https://dl.fbaipublicfiles.com/drqa/freebase-entities.txt.gz' : '.\\tempo\\freebase-entities.txt.gz', 'https://github.com/donno2048/corenlp/archive/main.zip' : '.\\tempo\\corenlp.zip'}
         index = 0
         for i in url_names:
             index += 1
             with tqdm(i, desc = f'Setup ({index}/6)') as t:
                 reporthook = my_hook(t)
                 urlretrieve(i, url_names[i], reporthook = reporthook)
-        with ZipFile('.\\tempo\\corenlp.zip') as zf:
-            for member in tqdm(zf.infolist(), desc = 'Extracting installation'): zf.extract(member, '.\\data')
-        rename('.\\__init__.jar', '.\\data\\corenlp\\stanford-corenlp-3.8.0-models.jar')
+        if not isdir('.\\data\\corenlp'):
+            with ZipFile('.\\tempo\\corenlp.zip') as zf:
+                for member in tqdm(zf.infolist(), desc = 'Extracting installation'): zf.extract(member, '.\\data')
+            rename('.\\data\\corenlp-main', '.\\data\\corenlp')
+        if not isfile('.\\data\\corenlp\\stanford-corenlp-3.8.0-models.jar'): rename('.\\__init__.jar', '.\\data\\corenlp\\stanford-corenlp-3.8.0-models.jar')
         print('Processing...')
         open('.\\data\\datasets\\freebase-entities.txt', 'wb').write(gopen('.\\tempo\\freebase-entities.txt.gz', 'rb').read())
         open('.\\tempo\\WebQuestions-train.json', 'wb').write(BZ2File('.\\tempo\\WebQuestions-train.json.bz2').read())
         open('.\\tempo\\WebQuestions-test.json', 'wb').write(BZ2File('.\\tempo\\WebQuestions-test.json.bz2').read())
-        dataset = load(open('.\\data\\datasets\\SQuAD-v1.1-train.json'))
+        dataset = jlod(open('.\\data\\datasets\\SQuAD-v1.1-train.json'))
         for article in dataset['data']:
             for paragraph in article['paragraphs']:
                 for qa in paragraph['qas']: open('.\\data\\datasets\\SQuAD-v1.1-train.txt', 'w').write(dumps({'question': qa['question'], 'answer': [a['text'] for a in qa['answers']]}) + '\n')
-        dataset = load(open('.\\data\\datasets\\SQuAD-v1.1-dev.json'))
+        dataset = jlod(open('.\\data\\datasets\\SQuAD-v1.1-dev.json'))
         for article in dataset['data']:
             for paragraph in article['paragraphs']:
                 for qa in paragraph['qas']: open('.\\data\\datasets\\SQuAD-v1.1-dev.txt', 'w').write(dumps({'question': qa['question'], 'answer': [a['text'] for a in qa['answers']]}) + '\n')
-        dataset = load(open('.\\tempo\\WebQuestions-train.json'))
+        dataset = jlod(open('.\\tempo\\WebQuestions-train.json'))
         for ex in dataset: open('.\\data\\datasets\\WebQuestions-train.txt', 'w').write(dumps({'question': ex['utterance'], 'answer': [a.replace('"', '') for a in findall(r'(?<=\(description )(.+?)(?=\) \(description|\)\)$)', ex['targetValue'])]}) + '\n')
-        dataset = load(open('.\\tempo\\WebQuestions-test.json'))
+        dataset = jlod(open('.\\tempo\\WebQuestions-test.json'))
         for ex in dataset: open('.\\data\\datasets\\WebQuestions-test.txt', 'w').write(dumps({'question': ex['utterance'], 'answer': [a.replace('"', '') for a in findall(r'(?<=\(description )(.+?)(?=\) \(description|\)\)$)', ex['targetValue'])]}) + '\n')
         rmtree('.\\tempo')
         print('DONE\n')
     if not isfile('data.in'): open('data.in', 'a').writelines([input('Give me a candidate file, if you don\'t have any press enter\n'), input('Give me a retriever_model, if you don\'t have any press enter\n'), input('Give me a doc db, if you don\'t have any press enter\n')])
 def question(question):
-    try: print(QA(set(normalize('NFD', line.strip()).lower() for line in open(open('data.in', 'r').readlines()[0].replace('\n', ''))) if open('data.in', 'r').readlines()[0].replace('\n', '') else None, {'options': {'tfidf_path': open('data.in', 'r').readlines()[1].replace('\n', '')}}, {'options': {'db_path': open('data.in', 'r').readlines()[2].replace('\n', '')}}).answer(question))
+    try: print(QA(set(normalize('NFD', line.strip()).lower() for line in open(open('data.in').readlines()[0].replace('\n', ''))) if open('data.in', 'r').readlines()[0].replace('\n', '') else None, {'options': {'tfidf_path': open('data.in').readlines()[1].replace('\n', '')}}, {'options': {'db_path': open('data.in').readlines()[2].replace('\n', '')}}).answer(question))
     except: print('The process failed, have you ran the setup function yet?')
 def interactive():
     while True:
