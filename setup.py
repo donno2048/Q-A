@@ -11,5 +11,5 @@ setup(
     license = 'MIT',
     author = 'Elisha Hollander',
     classifiers = ['Operating System :: Microsoft :: Windows','License :: OSI Approved :: MIT License','Programming Language :: Python :: 3'],
-    install_requires = ['wexpect', 'prettytable', 'regex', 'sklearn', 'spacy', 'termcolor', 'torch']
+    install_requires = ['drqa', 'prettytable', 'regex', 'sklearn', 'spacy', 'termcolor', 'torch', 'wexpect']
 )
