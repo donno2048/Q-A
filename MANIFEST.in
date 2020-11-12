@@ -1,1 +1,1 @@
-recursive-include *.jar
+recursive-include WikiQA *.jar
