@@ -22,7 +22,7 @@ from    sqlite3                     import    connect
 from    tarfile                     import    open as topen
 from    termcolor                   import    colored
 from    time                        import    time
-from    torch                       import    ByteTensor, cat, ger, is_tensor, load as tlod, LongTensor, ones, save, sort, Tensor, zeros
+from    torch                       import    ByteTensor, cat, device, ger, is_tensor, load as tlod, LongTensor, ones, save, sort, Tensor, zeros
 from    torch.nn                    import    DataParallel, Embedding, GRU, Linear, LSTM, Module, ModuleList, RNN
 from    torch.nn.functional         import    dropout, log_softmax, nll_loss, relu, softmax
 from    torch.nn.utils              import    clip_grad_norm
@@ -273,11 +273,11 @@ class DocReader(object):
         except: pass
     @staticmethod
     def load(filename, new_args=None, normalize=True):
-        saved_params = tlod(filename, map_location=lambda storage, loc: storage)
+        saved_params = tlod(filename, map_location = device('cpu'))
         return DocReader(override_model_args(args, new_args) if new_args else saved_params['args'], saved_params['word_dict'], saved_params['feature_dict'], saved_params['state_dict'], normalize)
     @staticmethod
     def load_checkpoint(filename, normalize=True):
-        saved_params = tlod(filename, map_location=lambda storage, loc: storage)
+        saved_params = tlod(filename, map_location = device('cpu'))
         model = DocReader(saved_params['args'], saved_params['word_dict'], saved_params['feature_dict'], saved_params['state_dict'], normalize)
         model.init_optimizer(saved_params['optimizer'])
         return model, saved_params['epoch']
