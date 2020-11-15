@@ -315,7 +315,9 @@ class Tokens(object):
             else: idx += 1
         return groups
 class DocDB(object):
-    def __init__(self, db_path=None): self.path, self.connection = db_path or '.\\data\\wikipedia\\docs.db', connect(self.path, check_same_thread=False)
+    def __init__(self, db_path=None):
+        self.path = db_path or '.\\data\\wikipedia\\docs.db'
+        self.connection = connect(self.path, check_same_thread=False)
     def __enter__(self): return self
     def __exit__(self, *args): self.close()
     def path(self): return self.path
