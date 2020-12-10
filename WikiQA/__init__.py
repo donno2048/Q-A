@@ -641,7 +641,7 @@ def my_hook(t):
         t.update((b - last_b[0]) * bsize)
         last_b[0] = b
     return update_to
-def _torch(): # generate the reader folder, I need to write this code...
+def _torch(): pass # generate the reader folder, I need to write this code...
 def setup():
     if not isdir('.\\data') and 'n' in input('I\'m going to install Wikipedia, this may take a long time (this is 7 Gb) would you like to do in in another time? (y/n)\n').lower():
         with tqdm('http://gfs270n122.userstorage.mega.co.nz/dl/RVLMhIxMApeyQQIxkFDWl-0aHd_iqz6yDLq4wI2brHvPeHgy_D9mdO7470RrDQwek4XjBUzF0Nc8SlxvUWPoM8hjTJAFUQig6jgP8dP6udLY-3_4bwfmcMs7HcC_Pg', desc = 'Installing Wikipedia') as t:
