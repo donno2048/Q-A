@@ -1,4 +1,8 @@
 This is a tool to procces questions you will usually go to Wikipedia for
+# Get requirements:
+```
+python -m pip install torch==1.7.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
+```
 # Install:
 #### From GitHub:
 ```
