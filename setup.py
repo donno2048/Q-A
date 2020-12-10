@@ -1,8 +1,7 @@
 from setuptools import setup, find_packages
 setup(
     name = 'WikiQA',
-    license = open('LICENSE').read(),
-    version = '1.0.0',
+    version = '1.0.1',
     description = 'A package to process wikipedia questions',
     long_description = open('README.md').read(),
     long_description_content_type = "text/markdown",
