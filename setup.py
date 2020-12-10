@@ -10,5 +10,5 @@ setup(
     license = 'MIT',
     author = 'Elisha Hollander',
     classifiers = ['Operating System :: Microsoft :: Windows','License :: OSI Approved :: MIT License','Programming Language :: Python :: 3'],
-    install_requires = ['argparse', 'prettytable', 'regex', 'sklearn', 'spacy', 'termcolor', 'torch==1.7.0+cpu -f https://download.pytorch.org/whl/torch_stable.html', 'wexpect']
+    install_requires = ['argparse', 'prettytable', 'regex', 'sklearn', 'spacy', 'termcolor', 'wexpect']
 )
