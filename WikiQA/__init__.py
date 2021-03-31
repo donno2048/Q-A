@@ -485,7 +485,6 @@ class QA(object):
         dataset = ReaderDataset(data, self.reader)
         return DataLoader(dataset, batch_size=128, sampler=SortedBatchSampler(dataset.lengths(), 128, shuffle=False), num_workers=num_loaders, collate_fn=batchify, pin_memory=False,)
     def process(self, query, candidates=None):
-        t0 = time()
         ranked = [self.ranker.closest_docs(query, k=5)]
         all_docids, all_doc_scores = zip(*ranked)
         flat_docids = list({d for docids in all_docids for d in docids})
